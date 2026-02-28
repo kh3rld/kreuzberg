@@ -74,10 +74,10 @@ Install via pip:
 pip install kreuzberg
 ```
 
-For async support and additional features:
+For optional EasyOCR support:
 
 ```bash
-pip install kreuzberg[async]
+pip install kreuzberg[easyocr]
 ```
 
 

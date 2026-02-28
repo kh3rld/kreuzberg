@@ -70,10 +70,6 @@ Optional extras:
 pip install 'kreuzberg[easyocr]'
 ```
 
-```bash title="Terminal"
-pip install 'kreuzberg[paddleocr]'
-```
-
 PyPI wheels include precompiled binaries for Linux (x86_64, aarch64), macOS (Apple Silicon), and Windows.
 
 Next steps: [Python Quick Start](quickstart.md) • [Python API Reference](../reference/api-python.md)
