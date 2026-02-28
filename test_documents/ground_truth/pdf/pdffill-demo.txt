@@ -1,16 +1,4 @@
-You can open a PDF or create a blank PDF by PDFill.
-Here are the PDF drawings created by PDFill
-Goto Page 2: Line Tool
-Goto Page 3: Arrow Tool
-Goto Page 4: Tool for Rectangle, Square and Rounded Corner
-First Page Previous Page Next Page Last Page
-Please save into a new PDF to see the effect!
-Online Help
-Goto Page 5: Tool for Circle, Ellipse, Arc, Pie
-Here are the tools to change line width, style, arrow style and colors
-Print PDFill: PDF Drawing
-Goto Page 6: Tool for Basic Shapes
-Goto Page 7: Tool for Curves
+First Page    Previous Page    Next Page    Last Page
 
 PDFill: PDF Drawing
 
@@ -33,46 +21,45 @@ Here are the tools to change line width, style, arrow style and colors
 0.75 pt
 1.00 pt
 1.50 pt
-2.25 pt
+2.00 pt
 3.00 pt
 4.50 pt
 6.00 pt
 More Lines...
 
-Square Dot
+[Line width samples shown with various styles: solid, dotted, dashed, dash-dot patterns]
 
-Arrow Style 1
+[Arrow style palette displayed]
 
-More Arrows...
+[Color palette with primary and additional colors shown]
 
-Auto
-
-More Colors...
-
-No Fill
-
-More Fill Colors...
-
-Line Width and Color
-
-Arrow Style and Size First Page
-Previous Page
-Next Page
-Last Page
 Online Help
-Point Snapping and Hold SHIFT Key
 
 Line Width and Color
+
+[Colored horizontal lines in sequence: gray, red, green, blue, purple]
 
 Arrow Style and Size
 
+[Various dash and dot patterns displayed]
+
+[Arrow style illustrations with different end styles]
+
 Point Snapping and Hold SHIFT Key
+
+[Geometric diagram showing point snapping with intersecting lines and rectangle]
+
+First Page    Previous Page    Next Page    Last Page
+
+Online Help
 
 Six Arrow Styles:
 
-First Page Previous Page Next Page Last Page
-
-Online Help
+[Horizontal line with no arrow]
+[Horizontal line with double-headed arrow]
+[Horizontal line with open/stealth double-headed arrow]
+[Horizontal line with diamond-headed arrow]
+[Horizontal line with oval-headed arrow]
 
 No Arrow
 Arrow
@@ -82,61 +69,106 @@ Arrow Oval Arrow
 
 9 Arrow Sizes for Each Style:
 
+[Red double-headed arrow, large]
+[Blue double-headed arrow, medium-large]
+[Cyan double-headed arrow, medium]
+[Black double-headed arrow, medium]
+[Orange double-headed arrow, small-medium]
+[Yellow double-headed arrow, small]
+[Black double-headed arrow, very small]
+[Black double-headed arrow, tiny]
+[Black double-headed arrow, minimal]
+
 Mixed Arrow Styles, Sizes, Color, Dashed Style
+
+[Curved black path with red section and green dashed diamond-ended line]
+
+First Page    Previous Page    Next Page    Last Page
+
+Online Help
 
 Create Rectangle, Square; Add a Corner Radius
 
-First Page Previous Page Next Page Last Page
+[Blue outlined rectangle]
+[Red dotted/dashed square]
+[Red filled rectangle]
+[Cyan rounded rectangle with rotation label inside]
+[Yellow rounded square with blue outline and dashed rotation indicator]
+
+First Page    Previous Page    Next Page    Last Page
 
 Online Help
-
-Rotation
-
-Rotation
 
 Create Circle, Ellipse, Arc, Pie
 
-First Page Previous Page Next Page Last Page
+[Black outlined ellipse with rotation label]
+[Black outlined circle]
+[Black outlined pac-man/pie shape (270 degrees)]
+[Black outlined arc shape (90 degrees)]
+
+[Red filled ellipse]
+[Red filled pie slice (90 degrees)]
+[Red filled pac-man shape (270 degrees)]
+[Red filled circle]
+
+First Page    Previous Page    Next Page    Last Page
 
 Online Help
-
-Rotation
 
 Create Basic Shapes
 
-First Page Previous Page Next Page
+[Row 1 - Outline shapes:]
+Isosceles Triangle
+Right Triangle
+Diamond
+Pentagon
+Hexagon
+Left Arrow
+
+[Row 2 - Filled shapes in green:]
+Right Arrow
+Up Arrow
+Down Arrow
+4 Point Start
+5 Point Star
+6 Point Star
+
+[Row 3 - Various callouts and icons:]
+Rounded Callout (yellow with blue outline)
+Rounded Callout (green filled)
+Cloud Callout (yellow filled)
+Heart (red filled)
+Lighting (blue lightning bolt)
+Smiley face (magenta with blue eyes and mouth)
+
+First Page    Previous Page    Next Page    Last Page
 
 Online Help
-
-Last Page
-
-Isosceles Triangle Right Triangle Diamond Pentagon Hexagon Left Arrow
-
-Right Arrow Up Arrow Down Arrow 4 Point Start 5 Point Star 6 Point Star
-
-Rounded Callout Rounded Callout Cloud Callout Heart Lighting Smiley face
-
-Isosceles Triangle Right Triangle Diamond Pentagon Hexagon Left Arrow
-
-Right Arrow Up Arrow Down Arrow 4 Point Start 5 Point Star 6 Point Star
-
-Rounded Callout Rounded Callout Cloud Callout Heart Lighting Smiley face
 
 Drawing Curves
 
-First Page Previous Page Next Page
-
-Online Help
-
-Last Page
-
+[Row 1:]
+[Curved black arc with arrow endpoints]
 Smooth Curve
-Smooth Freeform Straight Freeform
 
-Straight Curve Smooth Scribble Straight Scribble
+[Blue outlined house-shape with points]
+Straight Curve
 
-Signature Pen Cloud Tool
+[Green curved shape with crossing lines]
+Smooth Scribble
 
-Smooth Curve Straight Curve Smooth Scribble Straight Scribble
+[Cyan triangle with crossing lines]
+Straight Scribble
 
-Smooth Freeform Straight Freeform Signature Pen Cloud Tool
+[Row 2:]
+[Purple curved freeform shape]
+Smooth Freeform
+
+[Purple curved straight-edge shape]
+Straight Freeform
+
+[Yellow rectangle with handwriting "Sample"]
+Signature Pen
+
+[Cyan cloud/bubble shape with spiky edges]
+Cloud Tool

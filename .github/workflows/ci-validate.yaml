@@ -134,6 +134,8 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
           working-directory: packages/ruby
+        env:
+          BUNDLE_LOCKFILE_CHECKSUMS: "false"
 
       - name: Install E2E Ruby dependencies
         run: cd e2e/ruby && bundle install

@@ -4,7 +4,8 @@
 	"type": "project",
 	"license": "MIT",
 	"require": {
-		"php": "^8.4"
+		"php": "^8.4",
+		"kreuzberg-dev/kreuzberg": "4.4.0"
 	},
 	"config": {
 		"sort-packages": true

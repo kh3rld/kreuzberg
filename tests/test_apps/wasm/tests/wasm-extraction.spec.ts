@@ -25,19 +25,11 @@ import {
 } from "@kreuzberg/wasm";
 import { beforeAll, describe, expect, it } from "vitest";
 
-const TEST_DOCS_DIR = resolve(__dirname, "../test_documents");
+const TEST_DOCS_DIR = resolve(process.env.TEST_DOCS_DIR || resolve(__dirname, "../../../../test_documents"));
 
 const getTestDocument = (relativePath: string): Uint8Array => {
 	const path = resolve(TEST_DOCS_DIR, relativePath);
-	try {
-		return new Uint8Array(readFileSync(path));
-	} catch (_error) {
-		const fallbackPath = resolve(
-			process.env.TEST_DOCS_DIR || resolve(__dirname, "../../../test_documents"),
-			relativePath,
-		);
-		return new Uint8Array(readFileSync(fallbackPath));
-	}
+	return new Uint8Array(readFileSync(path));
 };
 
 const tryExtraction = async (
@@ -164,13 +156,13 @@ describe("Type Verification (8 tests)", () => {
 
 describe("Synchronous File Extraction (7 tests)", () => {
 	it("should extract text from PDF synchronously", () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = tryExtractionSync(bytes, "application/pdf");
 		expect(result === null || result.content).toBeDefined();
 	});
 
 	it("should extract from simple XLSX synchronously", () => {
-		const bytes = getTestDocument("spreadsheets/test_01.xlsx");
+		const bytes = getTestDocument("xlsx/test_01.xlsx");
 		const result = tryExtractionSync(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		expect(result === null || result.content).toBeDefined();
 	});
@@ -201,7 +193,7 @@ describe("Synchronous File Extraction (7 tests)", () => {
 	});
 
 	it("should handle large byte arrays", () => {
-		const bytes = getTestDocument("pdfs/multi_page.pdf");
+		const bytes = getTestDocument("pdf/multi_page.pdf");
 		expect(bytes.length).toBeGreaterThan(0);
 		const result = tryExtractionSync(bytes, "application/pdf");
 		expect(result === null || result).toBeDefined();
@@ -210,13 +202,13 @@ describe("Synchronous File Extraction (7 tests)", () => {
 
 describe("Asynchronous File Extraction (7 tests)", () => {
 	it("should extract text from PDF asynchronously", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, "application/pdf");
 		expect(result === null || result.content).toBeDefined();
 	});
 
 	it("should extract from simple XLSX asynchronously", async () => {
-		const bytes = getTestDocument("spreadsheets/stanley_cups.xlsx");
+		const bytes = getTestDocument("xlsx/stanley_cups.xlsx");
 		const result = await tryExtraction(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		expect(result === null || result).toBeDefined();
 	});
@@ -241,14 +233,14 @@ describe("Asynchronous File Extraction (7 tests)", () => {
 	});
 
 	it("should handle large byte arrays asynchronously", async () => {
-		const bytes = getTestDocument("pdfs/multi_page.pdf");
+		const bytes = getTestDocument("pdf/multi_page.pdf");
 		expect(bytes.length).toBeGreaterThan(0);
 		const result = await tryExtraction(bytes, "application/pdf");
 		expect(result === null || result).toBeDefined();
 	});
 
 	it("should extract with null configuration", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, "application/pdf", null);
 		expect(result === null || result).toBeDefined();
 	});
@@ -256,7 +248,7 @@ describe("Asynchronous File Extraction (7 tests)", () => {
 
 describe("Byte Extraction - Sync and Async (4 tests)", () => {
 	it("should extract PDF bytes with and without async consistency", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 
 		const syncResult = tryExtractionSync(bytes, "application/pdf");
 		const asyncResult = await tryExtraction(bytes, "application/pdf");
@@ -266,7 +258,7 @@ describe("Byte Extraction - Sync and Async (4 tests)", () => {
 	});
 
 	it("should extract consistently from same bytes", async () => {
-		const bytes = getTestDocument("spreadsheets/test_01.xlsx");
+		const bytes = getTestDocument("xlsx/test_01.xlsx");
 		const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 		const syncResult = tryExtractionSync(bytes, mimeType);
@@ -278,7 +270,7 @@ describe("Byte Extraction - Sync and Async (4 tests)", () => {
 	});
 
 	it("should preserve byte data integrity", () => {
-		const originalBytes = getTestDocument("pdfs/fake_memo.pdf");
+		const originalBytes = getTestDocument("pdf/fake_memo.pdf");
 		const bytesCopy = new Uint8Array(originalBytes);
 
 		const result = tryExtractionSync(bytesCopy, "application/pdf");
@@ -287,7 +279,7 @@ describe("Byte Extraction - Sync and Async (4 tests)", () => {
 	});
 
 	it("should handle rapid sequential byte extraction", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 
 		const r1 = await tryExtraction(bytes, "application/pdf");
 		const r2 = await tryExtraction(bytes, "application/pdf");
@@ -302,7 +294,7 @@ describe("Batch Extraction APIs (6 tests)", () => {
 		const files = [
 			{ data: getTestDocument("images/sample.png"), mimeType: "image/png" },
 			{
-				data: getTestDocument("spreadsheets/test_01.xlsx"),
+				data: getTestDocument("xlsx/test_01.xlsx"),
 				mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 			},
 		];
@@ -392,13 +384,13 @@ describe("Batch Extraction APIs (6 tests)", () => {
 
 describe("MIME Type Detection (7 tests)", () => {
 	it("should correctly identify PDF MIME type", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, "application/pdf");
 		expect(result === null || result.mimeType === "application/pdf").toBe(true);
 	});
 
 	it("should correctly identify XLSX MIME type", async () => {
-		const bytes = getTestDocument("spreadsheets/test_01.xlsx");
+		const bytes = getTestDocument("xlsx/test_01.xlsx");
 		const result = await tryExtraction(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		expect(
 			result === null || result.mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -425,7 +417,7 @@ describe("MIME Type Detection (7 tests)", () => {
 
 	it("should preserve MIME type through extraction", async () => {
 		const mimeType = "application/pdf";
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, mimeType);
 		expect(result === null || result.mimeType === mimeType).toBe(true);
 	});
@@ -442,7 +434,7 @@ describe("MIME Type Detection (7 tests)", () => {
 
 describe("Configuration Handling (8 tests)", () => {
 	it("should handle null configuration", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, "application/pdf", null);
 		expect(result === null || result).toBeDefined();
 	});
@@ -455,7 +447,7 @@ describe("Configuration Handling (8 tests)", () => {
 			},
 		};
 
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, "application/pdf", config);
 		expect(result === null || result).toBeDefined();
 	});
@@ -481,7 +473,7 @@ describe("Configuration Handling (8 tests)", () => {
 			},
 		};
 
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, "application/pdf", config);
 		expect(result === null || result).toBeDefined();
 	});
@@ -494,7 +486,7 @@ describe("Configuration Handling (8 tests)", () => {
 			},
 		};
 
-		const bytes = getTestDocument("pdfs/multi_page.pdf");
+		const bytes = getTestDocument("pdf/multi_page.pdf");
 		const result = await tryExtraction(bytes, "application/pdf", config);
 		expect(result === null || result).toBeDefined();
 	});
@@ -506,7 +498,7 @@ describe("Configuration Handling (8 tests)", () => {
 			images: { extractImages: true, targetDpi: 200 },
 		};
 
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, "application/pdf", config);
 		expect(result === null || result).toBeDefined();
 	});
@@ -533,7 +525,7 @@ describe("Configuration Handling (8 tests)", () => {
 
 describe("Result Structure Validation (6 tests)", () => {
 	it("should have expected result fields", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, "application/pdf");
 
 		if (result) {
@@ -567,7 +559,7 @@ describe("Result Structure Validation (6 tests)", () => {
 	});
 
 	it("should handle tables in results", async () => {
-		const bytes = getTestDocument("spreadsheets/test_01.xlsx");
+		const bytes = getTestDocument("xlsx/test_01.xlsx");
 		const result = await tryExtraction(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
 		if (result) {
@@ -576,7 +568,7 @@ describe("Result Structure Validation (6 tests)", () => {
 	});
 
 	it("should have consistent result type across sync and async", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 
 		const syncResult = tryExtractionSync(bytes, "application/pdf");
 		const asyncResult = await tryExtraction(bytes, "application/pdf");
@@ -624,7 +616,7 @@ describe("Error Handling (5 tests)", () => {
 	});
 
 	it("should handle very large files", async () => {
-		const large = getTestDocument("pdfs/multi_page.pdf");
+		const large = getTestDocument("pdf/multi_page.pdf");
 		expect(large.length).toBeGreaterThan(100000);
 
 		const result = await tryExtraction(large, "application/pdf");
@@ -664,7 +656,7 @@ describe("Adapter Functions (5 tests)", () => {
 describe("Concurrent Operations (3 tests)", () => {
 	it("should handle concurrent extractions", async () => {
 		const files = [
-			getTestDocument("pdfs/fake_memo.pdf"),
+			getTestDocument("pdf/fake_memo.pdf"),
 			getTestDocument("images/sample.png"),
 			{ data: new Uint8Array(Buffer.from("text")), mimeType: "text/plain" },
 		];
@@ -681,7 +673,7 @@ describe("Concurrent Operations (3 tests)", () => {
 	});
 
 	it("should handle rapid sequential extractions", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 
 		const result1 = await tryExtraction(bytes, "application/pdf");
 		const result2 = await tryExtraction(bytes, "application/pdf");
@@ -691,7 +683,7 @@ describe("Concurrent Operations (3 tests)", () => {
 	});
 
 	it("should mix sync and async extractions", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 
 		const syncResult = tryExtractionSync(bytes, "application/pdf");
 		const asyncResult = await tryExtraction(bytes, "application/pdf");
@@ -703,19 +695,19 @@ describe("Concurrent Operations (3 tests)", () => {
 
 describe("Large Document Handling (4 tests)", () => {
 	it("should extract from multi-page PDF", async () => {
-		const bytes = getTestDocument("pdfs/multi_page.pdf");
+		const bytes = getTestDocument("pdf/multi_page.pdf");
 		const result = await tryExtraction(bytes, "application/pdf");
 		expect(result === null || result).toBeDefined();
 	});
 
 	it("should handle complex XLSX files", async () => {
-		const bytes = getTestDocument("spreadsheets/excel_multi_sheet.xlsx");
+		const bytes = getTestDocument("xlsx/excel_multi_sheet.xlsx");
 		const result = await tryExtraction(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		expect(result === null || result).toBeDefined();
 	});
 
 	it("should extract from large PDF", async () => {
-		const bytes = getTestDocument("pdfs/fundamentals_of_deep_learning_2014.pdf");
+		const bytes = getTestDocument("pdf/fundamentals_of_deep_learning_2014.pdf");
 		expect(bytes.length).toBeGreaterThan(1000000);
 		const result = await tryExtraction(bytes, "application/pdf");
 		expect(result === null || result).toBeDefined();
@@ -730,7 +722,7 @@ describe("Large Document Handling (4 tests)", () => {
 
 describe("Content Quality Checks (5 tests)", () => {
 	it("should extract meaningful content when available", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 		const result = await tryExtraction(bytes, "application/pdf");
 
 		if (result?.content) {
@@ -764,7 +756,7 @@ describe("Content Quality Checks (5 tests)", () => {
 	});
 
 	it("should not modify input bytes", async () => {
-		const originalBytes = getTestDocument("pdfs/fake_memo.pdf");
+		const originalBytes = getTestDocument("pdf/fake_memo.pdf");
 		const bytesCopy = new Uint8Array(originalBytes);
 
 		await tryExtraction(bytesCopy, "application/pdf");
@@ -773,7 +765,7 @@ describe("Content Quality Checks (5 tests)", () => {
 	});
 
 	it("should handle content consistently", async () => {
-		const bytes = getTestDocument("pdfs/fake_memo.pdf");
+		const bytes = getTestDocument("pdf/fake_memo.pdf");
 
 		const result1 = await tryExtraction(bytes, "application/pdf");
 		const result2 = await tryExtraction(bytes, "application/pdf");

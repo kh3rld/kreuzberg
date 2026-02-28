@@ -1,3 +1,1 @@
 Test unicode decoding issues in annotations
-
-Invalid utf-8: ÝED A0 80

@@ -141,8 +141,8 @@ runner.test('Chunking config to_h serialization') do
 end
 
 runner.test('ImagePreprocessing config creation') do
-  preprocessing = Kreuzberg::Config::ImagePreprocessing.new(enabled: true)
-  preprocessing.enabled == true
+  preprocessing = Kreuzberg::Config::ImagePreprocessing.new(denoise: true)
+  preprocessing.denoise == true
 end
 
 runner.test('ImagePreprocessing to_h serialization') do
@@ -163,13 +163,13 @@ runner.test('Tesseract config to_h') do
 end
 
 runner.test('PDF config creation') do
-  pdf = Kreuzberg::Config::PDF.new(extract_text: true)
-  pdf.extract_text == true
+  pdf = Kreuzberg::Config::PDF.new(extract_images: true)
+  pdf.extract_images == true
 end
 
-runner.test('PDF config with custom DPI') do
-  pdf = Kreuzberg::Config::PDF.new(dpi: 300)
-  pdf.dpi == 300
+runner.test('PDF config with extract_metadata') do
+  pdf = Kreuzberg::Config::PDF.new(extract_metadata: true)
+  pdf.extract_metadata == true
 end
 
 runner.test('PDF config to_h serialization') do
@@ -179,18 +179,18 @@ runner.test('PDF config to_h serialization') do
 end
 
 runner.test('ImageExtraction config creation') do
-  image_extract = Kreuzberg::Config::ImageExtraction.new(enabled: true)
-  image_extract.enabled == true
+  image_extract = Kreuzberg::Config::ImageExtraction.new(extract_images: true)
+  image_extract.extract_images == true
 end
 
-runner.test('ImageExtraction config with dimensions') do
-  image_extract = Kreuzberg::Config::ImageExtraction.new(min_width: 100, min_height: 100)
-  image_extract.min_width == 100
+runner.test('ImageExtraction config with target_dpi') do
+  image_extract = Kreuzberg::Config::ImageExtraction.new(target_dpi: 600)
+  image_extract.target_dpi == 600
 end
 
 runner.test('PageConfig creation') do
-  page = Kreuzberg::Config::PageConfig.new(enabled: true)
-  page.enabled == true
+  page = Kreuzberg::Config::PageConfig.new(extract_pages: true)
+  page.extract_pages == true
 end
 
 runner.test('Extraction config creation with defaults') do
@@ -290,23 +290,35 @@ runner.test('detect_mime_type from PDF bytes') do
 end
 
 runner.test('detect_mime_type_from_path with PDF') do
-  mime = Kreuzberg.detect_mime_type_from_path('document.pdf')
+  require 'tempfile'
+  tmpfile = Tempfile.new(%w[document .pdf])
+  tmpfile.write('%PDF-1.4')
+  tmpfile.flush
+  mime = Kreuzberg.detect_mime_type_from_path(tmpfile.path)
+  tmpfile.close!
   mime == 'application/pdf'
 end
 
 runner.test('detect_mime_type_from_path with DOCX') do
-  mime = Kreuzberg.detect_mime_type_from_path('document.docx')
+  require 'tempfile'
+  tmpfile = Tempfile.new(%w[document .docx])
+  tmpfile.write('PK')
+  tmpfile.flush
+  mime = Kreuzberg.detect_mime_type_from_path(tmpfile.path)
+  tmpfile.close!
   mime == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 end
 
-runner.test('validate_mime_type with valid MIME') do
-  result = Kreuzberg.validate_mime_type('application/pdf')
-  result == true
+runner.test('validate_mime_type with valid MIME does not raise') do
+  Kreuzberg.validate_mime_type('application/pdf')
+  true
 end
 
-runner.test('validate_mime_type with invalid MIME') do
-  result = Kreuzberg.validate_mime_type('application/invalid-mime-type-xyz')
-  result == false || result.is_a?(String)
+runner.test('validate_mime_type with invalid MIME raises') do
+  Kreuzberg.validate_mime_type('application/invalid-mime-type-xyz')
+  false
+rescue RuntimeError
+  true
 end
 
 runner.test('get_extensions_for_mime returns array') do
@@ -331,8 +343,8 @@ runner.test('register_validator with callable') do
   validator = lambda do |result|
     result[:content]&.length&.positive? || false
   end
-  result = Kreuzberg.register_validator('test_validator', validator)
-  result == true
+  Kreuzberg.register_validator('test_validator', validator)
+  Kreuzberg.list_validators.include?('test_validator')
 end
 
 runner.test('list_validators includes registered validator') do
@@ -341,14 +353,14 @@ runner.test('list_validators includes registered validator') do
 end
 
 runner.test('unregister_validator removes validator') do
-  result = Kreuzberg.unregister_validator('test_validator')
-  result == true
+  Kreuzberg.unregister_validator('test_validator')
+  !Kreuzberg.list_validators.include?('test_validator')
 end
 
 runner.test('clear_validators clears all validators') do
   Kreuzberg.register_validator('temp_validator_1', ->(_r) { true })
-  result = Kreuzberg.clear_validators
-  result == true
+  Kreuzberg.clear_validators
+  Kreuzberg.list_validators.empty?
 end
 
 runner.start_section('Plugin Registry - Post-Processors')
@@ -362,8 +374,8 @@ runner.test('register_post_processor with callable') do
   processor = lambda do |result|
     result[:content]&.gsub(/\s+/, ' ')
   end
-  result = Kreuzberg.register_post_processor('space_normalizer', processor)
-  result == true
+  Kreuzberg.register_post_processor('space_normalizer', processor)
+  Kreuzberg.list_post_processors.include?('space_normalizer')
 end
 
 runner.test('list_post_processors includes registered processor') do
@@ -372,14 +384,14 @@ runner.test('list_post_processors includes registered processor') do
 end
 
 runner.test('unregister_post_processor removes processor') do
-  result = Kreuzberg.unregister_post_processor('space_normalizer')
-  result == true
+  Kreuzberg.unregister_post_processor('space_normalizer')
+  !Kreuzberg.list_post_processors.include?('space_normalizer')
 end
 
 runner.test('clear_post_processors clears all post-processors') do
   Kreuzberg.register_post_processor('temp_proc_1', ->(r) { r })
-  result = Kreuzberg.clear_post_processors
-  result == true
+  Kreuzberg.clear_post_processors
+  Kreuzberg.list_post_processors.empty?
 end
 
 runner.start_section('Plugin Registry - OCR Backends')
@@ -389,27 +401,20 @@ runner.test('list_ocr_backends returns array') do
   backends.is_a?(Array)
 end
 
-runner.test('unregister_ocr_backend on non-existent backend returns false or true') do
-  result = Kreuzberg.unregister_ocr_backend('nonexistent_backend')
-  result.is_a?(TrueClass) || result.is_a?(FalseClass)
-end
-
-runner.start_section('Embedding Presets')
-
-runner.test('list_embedding_presets returns array') do
-  presets = Kreuzberg.list_embedding_presets
-  presets.is_a?(Array)
-end
-
-runner.test('get_embedding_preset on built-in preset') do
-  %w[bert nomic mxbai].each do |name|
-    preset = Kreuzberg.get_embedding_preset(name)
-    if preset
-      puts "    Found preset: #{name}"
-      return true
-    end
-  end
+runner.test('unregister_ocr_backend on non-existent backend does not raise') do
+  Kreuzberg.unregister_ocr_backend('nonexistent_backend')
   true
+end
+
+runner.start_section('Embedding Configuration')
+
+runner.test('Embedding config class is accessible') do
+  defined?(Kreuzberg::Config::Embedding) == 'constant'
+end
+
+runner.test('Embedding config creation with defaults') do
+  embedding = Kreuzberg::Config::Embedding.new
+  embedding.is_a?(Kreuzberg::Config::Embedding)
 end
 
 runner.start_section('Cache API')
@@ -459,20 +464,20 @@ end
 runner.test('Result.Image has expected fields') do
   image = Kreuzberg::Result::Image.new(
     data: 'fake_image_data',
-    mime_type: 'image/png',
+    format: 'png',
     page_number: 1
   )
-  image.data == 'fake_image_data' && image.mime_type == 'image/png'
+  image.data == 'fake_image_data' && image.format == 'png'
 end
 
-runner.test('Result.Page has expected fields') do
-  page = Kreuzberg::Result::Page.new(
+runner.test('Result.PageContent has expected fields') do
+  page = Kreuzberg::Result::PageContent.new(
     page_number: 1,
-    width: 612,
-    height: 792,
-    rotation: 0
+    content: 'Hello world',
+    tables: [],
+    images: []
   )
-  page.page_number == 1 && page.width == 612
+  page.page_number == 1 && page.content == 'Hello world'
 end
 
 runner.test('Result.to_h produces hash with all fields') do
@@ -496,7 +501,7 @@ runner.test('extract_file_sync method is accessible') do
 end
 
 runner.test('extract_file_sync with non-existent file raises IOError') do
-  Kreuzberg.extract_file_sync('/nonexistent/path/to/file.pdf')
+  Kreuzberg.extract_file_sync(path: '/nonexistent/path/to/file.pdf')
   false
 rescue Kreuzberg::Errors::IOError
   true
@@ -512,7 +517,7 @@ runner.test('extract_bytes_sync method is accessible') do
 end
 
 runner.test('extract_bytes_sync with empty PDF raises ParsingError or IOError') do
-  Kreuzberg.extract_bytes_sync('', 'application/pdf')
+  Kreuzberg.extract_bytes_sync(data: '', mime_type: 'application/pdf')
   false
 rescue Kreuzberg::Errors::ParsingError, Kreuzberg::Errors::IOError, Kreuzberg::Errors::UnsupportedFormatError
   true
@@ -532,12 +537,12 @@ runner.test('batch_extract_bytes_sync method is accessible') do
 end
 
 runner.test('batch_extract_files_sync with empty array returns array') do
-  result = Kreuzberg.batch_extract_files_sync([])
+  result = Kreuzberg.batch_extract_files_sync(paths: [])
   result.is_a?(Array)
 end
 
-runner.test('batch_extract_bytes_sync with empty array returns array') do
-  result = Kreuzberg.batch_extract_bytes_sync([])
+runner.test('batch_extract_bytes_sync with empty arrays returns array') do
+  result = Kreuzberg.batch_extract_bytes_sync(data_array: [], mime_types: [])
   result.is_a?(Array)
 end
 

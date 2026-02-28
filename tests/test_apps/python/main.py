@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Comprehensive test suite for Kreuzberg Python bindings v4.4.1.
+"""Comprehensive test suite for Kreuzberg Python bindings v4.4.0.
 
 Tests ALL exported functions and types/classes.
 Validates:
@@ -19,7 +19,6 @@ try:
         CacheError,
         Chunk,
         ChunkingConfig,
-        ChunkMetadata,
         EmbeddingConfig,
         EmbeddingModelType,
         EmbeddingPreset,
@@ -774,8 +773,6 @@ runner.test("__version__ is accessible", lambda: isinstance(__version__, str) an
 runner.test("PostProcessorProtocol is accessible", lambda: PostProcessorProtocol is not None)
 
 runner.test("Chunk dataclass is accessible", lambda: Chunk is not None)
-
-runner.test("ChunkMetadata dataclass is accessible", lambda: ChunkMetadata is not None)
 
 runner.test("ExtractedImage dataclass is accessible", lambda: ExtractedImage is not None)
 

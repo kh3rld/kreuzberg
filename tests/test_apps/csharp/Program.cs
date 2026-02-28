@@ -521,7 +521,7 @@ internal sealed class Program
             Console.Write($"TEST  ExtractFileAsync()                   ");
             var task = KreuzbergClient.ExtractFileAsync(pdfPath);
             var result = task.Result;
-            if (result != null && result.Success)
+            if (result != null && !string.IsNullOrEmpty(result.Content))
             {
                 Console.WriteLine($"OK   (content: {result.Content?.Length ?? 0} chars)");
             }
@@ -543,7 +543,7 @@ internal sealed class Program
             var bytes = File.ReadAllBytes(pdfPath);
             var task = KreuzbergClient.ExtractBytesAsync(bytes, "application/pdf");
             var result = task.Result;
-            if (result != null && result.Success)
+            if (result != null && !string.IsNullOrEmpty(result.Content))
             {
                 Console.WriteLine($"OK   (content: {result.Content?.Length ?? 0} chars)");
             }
@@ -945,7 +945,7 @@ internal sealed class Program
             var result = KreuzbergClient.ExtractFileSync(pdfPath);
             if (result.Metadata != null)
             {
-                Console.WriteLine($"OK   (type: {result.Metadata.FormatType})");
+                Console.WriteLine($"OK   (type: {result.Metadata.Format?.Type})");
             }
             else
             {
@@ -973,9 +973,9 @@ internal sealed class Program
 
         try
         {
-            Console.Write($"TEST  ExtractionResult.Success             ");
+            Console.Write($"TEST  ExtractionResult non-null             ");
             var result = KreuzbergClient.ExtractFileSync(pdfPath);
-            Console.WriteLine($"OK   (success: {result.Success})");
+            Console.WriteLine($"OK   (content length: {result.Content.Length})");
         }
         catch (Exception ex)
         {

@@ -70,10 +70,21 @@ find_lib() {
   local name="$1"
   if [ -f "${target_release}/${name}" ]; then
     echo "${target_release}/${name}"
-  else
-    echo "Error: Cannot find ${name} in ${target_release}" >&2
-    exit 1
+    return
   fi
+  # GNU toolchain uses lib-prefix; try alternative naming
+  local alt
+  case "$name" in
+  kreuzberg_ffi.dll) alt="libkreuzberg_ffi.dll" ;;
+  kreuzberg_ffi.lib) alt="libkreuzberg_ffi.a" ;;
+  *) alt="" ;;
+  esac
+  if [ -n "$alt" ] && [ -f "${target_release}/${alt}" ]; then
+    echo "${target_release}/${alt}"
+    return
+  fi
+  echo "Error: Cannot find ${name} in ${target_release}" >&2
+  exit 1
 }
 
 shared_lib_path="$(find_lib "$shared_lib")"

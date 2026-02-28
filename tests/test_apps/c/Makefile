@@ -22,18 +22,31 @@ LIBNAME = kreuzberg_ffi
 CC ?= cc
 CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -I$(HEADER_DIR)
 
-# Try pkg-config first, fall back to manual paths
+# Try pkg-config first, fall back to manual paths.
+# We also verify the library directory from pkg-config actually exists,
+# since the .pc file may contain stale cross-compilation target triples.
 PKG_CONFIG_PATH_EXTRA = $(KREUZBERG_ROOT)/crates/kreuzberg-ffi
 HAVE_PKGCONFIG := $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH_EXTRA):$$PKG_CONFIG_PATH pkg-config --exists kreuzberg-ffi 2>/dev/null && echo yes || echo no)
 
 ifeq ($(HAVE_PKGCONFIG),yes)
-  PKG_CFLAGS := $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH_EXTRA):$$PKG_CONFIG_PATH pkg-config --cflags kreuzberg-ffi)
-  PKG_LIBS := $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH_EXTRA):$$PKG_CONFIG_PATH pkg-config --libs kreuzberg-ffi)
-  CFLAGS += $(PKG_CFLAGS)
-  LDFLAGS = $(PKG_LIBS)
-  RPATH =
-  $(info Using pkg-config for kreuzberg-ffi)
-else
+  # Extract the library directory from pkg-config and verify it exists
+  _PKG_LIBDIR := $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH_EXTRA):$$PKG_CONFIG_PATH pkg-config --variable=libdir kreuzberg-ffi 2>/dev/null)
+  _PKG_LIBDIR_OK := $(shell test -d "$(_PKG_LIBDIR)" 2>/dev/null && echo yes || echo no)
+
+  ifeq ($(_PKG_LIBDIR_OK),yes)
+    PKG_CFLAGS := $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH_EXTRA):$$PKG_CONFIG_PATH pkg-config --cflags kreuzberg-ffi)
+    PKG_LIBS := $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH_EXTRA):$$PKG_CONFIG_PATH pkg-config --libs kreuzberg-ffi)
+    CFLAGS += $(PKG_CFLAGS)
+    LDFLAGS = $(PKG_LIBS)
+    RPATH =
+    $(info Using pkg-config for kreuzberg-ffi (libdir=$(_PKG_LIBDIR)))
+  else
+    # pkg-config found but library directory doesn't exist; fall back to manual paths
+    HAVE_PKGCONFIG := no
+  endif
+endif
+
+ifneq ($(HAVE_PKGCONFIG),yes)
   # Manual path configuration
   ifeq ($(shell uname),Darwin)
     LDFLAGS = -L$(LIBDIR) -l$(LIBNAME) -framework CoreFoundation -framework Security -lpthread
