@@ -790,6 +790,8 @@ pub struct TextChunk {
     #[php(prop)]
     pub content: String,
     #[php(prop)]
+    pub chunk_type: String,
+    #[php(prop)]
     pub embedding: Option<Vec<f32>>,
     pub metadata: ChunkMetadata,
 }
@@ -807,6 +809,10 @@ impl TextChunk {
     pub fn from_rust(chunk: kreuzberg::Chunk) -> PhpResult<Self> {
         Ok(Self {
             content: chunk.content,
+            chunk_type: serde_json::to_value(chunk.chunk_type)
+                .ok()
+                .and_then(|v| v.as_str().map(String::from))
+                .unwrap_or_else(|| "unknown".to_string()),
             embedding: chunk.embedding,
             metadata: ChunkMetadata::from_rust(chunk.metadata)?,
         })

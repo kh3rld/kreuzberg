@@ -652,6 +652,7 @@ mod tests {
 
         let chunk = Chunk {
             content: "Chunk content".to_string(),
+            chunk_type: Default::default(),
             embedding: None,
             metadata: ChunkMetadata {
                 byte_start: 0,
